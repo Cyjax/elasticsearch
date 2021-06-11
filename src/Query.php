@@ -65,6 +65,8 @@ class Query implements Arrayable, JsonSerializable, Jsonable, IteratorAggregate
 
     protected const FIELD_QUERY = 'query';
 
+    protected const FIELD_AGGREGATIONS = 'aggs';
+
     protected const FIELD_SCORE = '_score';
 
     protected const FIELD_SORT = 'sort';

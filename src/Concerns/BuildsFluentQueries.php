@@ -199,6 +199,13 @@ trait BuildsFluentQueries
     protected $sort = [];
 
     /**
+     * Query aggregations.
+     *
+     * @var array
+     */
+    public $aggregations = [];
+
+    /**
      * Search Type
      * ===========
      * There are different execution paths that can be done when executing a
@@ -1182,6 +1189,18 @@ trait BuildsFluentQueries
     }
 
     /**
+     * Adds an aggregation.
+     * @param string $name The name.
+     * @param array $type The type.
+     * @return $this
+     */
+    public function addAggregation(string $name, array $type): self
+    {
+        $this->aggregations[$name] = $type;
+        return $this;
+    }
+
+    /**
      * Retrieves the ID the query is restricted to.
      *
      * @return string|null
@@ -1371,6 +1390,13 @@ trait BuildsFluentQueries
             $body[self::FIELD_QUERY]['bool']['filter'] = array_merge(
                 $body[self::FIELD_QUERY]['bool']['filter'] ?? [],
                 $this->filter,
+            );
+        }
+
+        if(count($this->aggregations)) {
+            $body[self::FIELD_AGGREGATIONS] = $body[self::FIELD_AGGREGATIONS] = array_merge(
+                $body[self::FIELD_AGGREGATIONS] ?? [],
+                $this->aggregations,
             );
         }
 
