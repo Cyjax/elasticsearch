@@ -350,19 +350,20 @@ trait ExecutesQueries
      * Delete a document
      *
      * @param string|null $id
+     * @param array $parameters Parameters for the delete request.
      *
      * @return object
      */
-    public function delete(?string $id = null): object
+    public function delete(?string $id = null, array $parameters = []): object
     {
         if ($id) {
             $this->id($id);
         }
 
-        $parameters = [
+        $parameters = array_merge($parameters, [
             'id' => $this->getId(),
             'client' => ['ignore' => $this->getIgnores()],
-        ];
+        ]);
 
         $parameters = $this->addBaseParams($parameters);
 

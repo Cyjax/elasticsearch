@@ -944,13 +944,15 @@ class Model implements Arrayable,
     /**
      * Delete model record
      *
+     * @param array $parameters Parameters for the delete request.
+     *
      * @return void
      * @throws DecryptException
      * @throws InvalidCastException
      * @throws InvalidFormatException
      * @throws JsonException
      */
-    public function delete(): void
+    public function delete(array $parameters = []): void
     {
         $this->mergeAttributesFromClassCasts();
 
@@ -966,7 +968,7 @@ class Model implements Arrayable,
             return;
         }
 
-        $this->performDeleteOnModel();
+        $this->performDeleteOnModel($parameters);
 
         // Once the model has been deleted, we will fire off the deleted event
         // so that the developers may hook into post-delete operations.
@@ -1547,15 +1549,17 @@ class Model implements Arrayable,
     /**
      * Perform the actual delete query on this model instance.
      *
+     * @param array $parameters Parameters for the delete request.
+     *
      * @return void
      * @throws DecryptException
      * @throws InvalidCastException
      * @throws InvalidFormatException
      * @throws JsonException
      */
-    protected function performDeleteOnModel(): void
+    protected function performDeleteOnModel(array $parameters = []): void
     {
-        $this->setKeysForSaveQuery($this->newQuery())->delete();
+        $this->setKeysForSaveQuery($this->newQuery())->delete(parameters: $parameters);
 
         $this->exists = false;
     }
