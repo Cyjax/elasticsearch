@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Matchory\Elasticsearch\Concerns;
 
 use DateTime;
+use Illuminate\Container\Container;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use JsonException;
 use Matchory\Elasticsearch\Classes\Bulk;
 use Matchory\Elasticsearch\Collection;
 use Matchory\Elasticsearch\Exceptions\DocumentNotFoundException;
 use Matchory\Elasticsearch\Model;
-use Matchory\Elasticsearch\Pagination;
 use Matchory\Elasticsearch\Query;
 use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException;
@@ -145,13 +146,13 @@ trait ExecutesQueries
      * @param string   $pageName
      * @param int|null $page
      *
-     * @return Pagination
+     * @return LengthAwarePaginator
      */
     public function paginate(
         int $perPage = 10,
         string $pageName = 'page',
         ?int $page = null
-    ): Pagination {
+    ): LengthAwarePaginator {
         // Check if the request from PHP CLI
         if (PHP_SAPI === 'cli') {
             $this->take($perPage);
@@ -162,12 +163,12 @@ trait ExecutesQueries
 
             $collection = $this->get();
 
-            return new Pagination(
-                $collection,
-                $collection->getTotal() ?? 0,
-                $perPage,
-                $page
-            );
+            return Container::getInstance()->makeWith(LengthAwarePaginator::class, [
+                'items' => $collection,
+                'total' => $collection->getTotal() ?? 0,
+                'perPage' => $perPage,
+                'currentPage' => $page,
+            ]);
         }
 
         $this->take($perPage);
@@ -178,16 +179,16 @@ trait ExecutesQueries
 
         $collection = $this->get();
 
-        return new Pagination(
-            $collection,
-            $collection->getTotal() ?? 0,
-            $perPage,
-            $page,
-            [
-                'path' => Request::url(),
-                'query' => Request::query(),
-            ]
-        );
+        return Container::getInstance()->makeWith(LengthAwarePaginator::class, [
+                'items' => $collection,
+                'total' => $collection->getTotal() ?? 0,
+                'perPage' => $perPage,
+                'currentPage' => $page,
+                'options' => [
+                    'path' => Request::url(),
+                    'query' => Request::query(),
+                ]
+        ]);
     }
 
     /**
