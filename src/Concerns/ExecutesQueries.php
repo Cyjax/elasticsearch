@@ -202,11 +202,26 @@ trait ExecutesQueries
     {
         $scrollId = $scrollId ?? $this->getScrollId();
 
+        if (empty($scrollId)) {
+            return Collection::empty();
+        }
+
+        $parameters = [
+            'body' => [
+                'scroll_id' => $scrollId
+            ],
+        ];
+
+        if (count($ignores = $this->getIgnores())) {
+            $parameters['client'] = [
+                'ignore' => $ignores,
+            ];
+        }
+
         return new Collection(
-            $this->getConnection()->getClient()->clearScroll([
-                'scroll_id' => $scrollId,
-                'client' => ['ignore' => $this->getIgnores()],
-            ])
+            $this->getConnection()
+                ->getClient()
+                ->clearScroll($parameters)
         );
     }
 
