@@ -22,10 +22,8 @@ class ExecutesQueriesTest extends TestCase
         $clientMock->expects($this->once())
             ->method('clearScroll')
             ->with([
-                'scroll_id' => 'abc123456789',
-                'client' => [
-                    'ignore' => []
-                ]])
+                'body' => ['scroll_id' => 'abc123456789']
+            ])
             ->willReturn([]);
 
         $collection = $this->getQueryObjectWithClient($clientMock)->clear('abc123456789');
@@ -40,14 +38,8 @@ class ExecutesQueriesTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $clientMock->expects($this->once())
-            ->method('clearScroll')
-            ->with([
-                'scroll_id' => null,
-                'client' => [
-                    'ignore' => []
-                ]])
-            ->willReturn([]);
+        $clientMock->expects($this->never())
+            ->method('clearScroll');
 
         $collection = $this->getQueryObjectWithClient($clientMock)->clear();
 
