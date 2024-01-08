@@ -525,8 +525,10 @@ trait ExecutesQueries
                 ->getConnection()
                 ->getClient()
                 ->scroll([
-                    Query::PARAM_SCROLL => $this->getScroll(),
-                    Query::PARAM_SCROLL_ID => $scrollId,
+                    'body' => [
+                        Query::PARAM_SCROLL => $this->getScroll(),
+                        Query::PARAM_SCROLL_ID => $scrollId,
+                    ]
                 ]);
         } else {
             $query = $this->buildQuery();

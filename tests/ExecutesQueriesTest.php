@@ -47,6 +47,76 @@ class ExecutesQueriesTest extends TestCase
         $this->assertEmpty($collection);
     }
 
+    public function testScrollWithScrollId()
+    {
+        $clientMock = $this->getMockBuilder(Client::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $clientMock->expects($this->once())
+            ->method('scroll')
+            ->with([
+                'body' => [
+                    'scroll' => null,
+                    'scroll_id' => 'abc123456789'
+                ]
+            ])
+            ->willReturn([]);
+
+        $response = $this->getQueryObjectWithClient($clientMock)
+            ->performSearch('abc123456789');
+
+        $this->assertIsArray($response);
+        $this->assertEmpty($response);
+    }
+
+    public function testScrollWithScrollIdAndScrollSet()
+    {
+        $clientMock = $this->getMockBuilder(Client::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $clientMock->expects($this->once())
+            ->method('scroll')
+            ->with([
+                'body' => [
+                    'scroll' => '5m',
+                    'scroll_id' => 'abc123456789'
+                ]
+            ])
+            ->willReturn([]);
+
+        $query = $this->getQueryObjectWithClient($clientMock);
+        $query->scroll();
+
+        $response = $query->performSearch('abc123456789');
+
+        $this->assertIsArray($response);
+        $this->assertEmpty($response);
+    }
+
+    public function testScrollWithoutScroll()
+    {
+        $clientMock = $this->getMockBuilder(Client::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $clientMock->expects($this->never())
+            ->method('scroll');
+
+        $clientMock->expects($this->once())
+            ->method('search')
+            ->willReturn([]);
+
+        $query = $this->getQueryObjectWithClient($clientMock);
+        $query->scroll();
+
+        $response = $query->performSearch();
+
+        $this->assertIsArray($response);
+        $this->assertEmpty($response);
+    }
+
     protected function getQueryObjectWithClient(Client $client): Query
     {
         return (new Query(
