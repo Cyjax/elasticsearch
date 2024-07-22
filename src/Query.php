@@ -127,6 +127,8 @@ class Query implements Arrayable, JsonSerializable, Jsonable, IteratorAggregate
 
     public const PARAM_SCROLL_ID = 'scroll_id';
 
+    protected const PARAM_TRACK_TOTAL_HITS = 'track_total_hits';
+
     public const PARAM_SEARCH_TYPE = 'search_type';
 
     public const PARAM_SIZE = 'size';
@@ -340,6 +342,10 @@ class Query implements Arrayable, JsonSerializable, Jsonable, IteratorAggregate
 
         if ($type = $this->getType()) {
             $params[self::PARAM_TYPE] = $type;
+        }
+
+        if ($this->getTrackTotalHits() !== null) {
+            $params[self::PARAM_TRACK_TOTAL_HITS] = $this->getTrackTotalHits();
         }
 
         return $params;

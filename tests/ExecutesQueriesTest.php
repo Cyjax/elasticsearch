@@ -8,6 +8,7 @@ use Matchory\Elasticsearch\Connection;
 use Matchory\Elasticsearch\Query;
 use Matchory\Elasticsearch\Tests\Traits\ESQueryTrait;
 use PHPUnit\Framework\TestCase;
+use Mockery;
 
 class ExecutesQueriesTest extends TestCase
 {
@@ -110,6 +111,80 @@ class ExecutesQueriesTest extends TestCase
 
         $query = $this->getQueryObjectWithClient($clientMock);
         $query->scroll();
+
+        $response = $query->performSearch();
+
+        $this->assertIsArray($response);
+        $this->assertEmpty($response);
+    }
+
+    public function test_search_with_track_total_hits()
+    {
+        $clientMock = Mockery::mock(Client::class)->makePartial();
+
+        $clientMock->shouldReceive('scroll')
+            ->never();
+
+        $clientMock->shouldReceive('search')
+            ->once()
+            ->withArgs(function(...$args) {
+                $params = $args[0];
+                $this->assertTrue($params['track_total_hits']);
+                return true;
+            })
+            ->andReturn([]);
+
+        $query = $this->getQueryObjectWithClient($clientMock);
+        $query->trackTotalHits(true);
+
+        $response = $query->performSearch();
+
+        $this->assertIsArray($response);
+        $this->assertEmpty($response);
+    }
+
+    public function test_search_with_track_total_hits_as_int()
+    {
+        $clientMock = Mockery::mock(Client::class)->makePartial();
+
+        $clientMock->shouldReceive('scroll')
+            ->never();
+
+        $clientMock->shouldReceive('search')
+            ->once()
+            ->withArgs(function(...$args) {
+                $params = $args[0];
+                $this->assertEquals(50000, $params['track_total_hits']);
+                return true;
+            })
+            ->andReturn([]);
+
+        $query = $this->getQueryObjectWithClient($clientMock);
+        $query->trackTotalHits(50000);
+
+        $response = $query->performSearch();
+
+        $this->assertIsArray($response);
+        $this->assertEmpty($response);
+    }
+
+    public function test_search_without_track_total_hits()
+    {
+        $clientMock = Mockery::mock(Client::class)->makePartial();
+
+        $clientMock->shouldReceive('scroll')
+            ->never();
+
+        $clientMock->shouldReceive('search')
+            ->once()
+            ->withArgs(function(...$args) {
+                $params = $args[0];
+                $this->assertArrayNotHasKey('track_total_hits', $params);
+                return true;
+            })
+            ->andReturn([]);
+
+        $query = $this->getQueryObjectWithClient($clientMock);
 
         $response = $query->performSearch();
 
