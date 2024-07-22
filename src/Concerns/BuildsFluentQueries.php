@@ -162,6 +162,13 @@ trait BuildsFluentQueries
     protected $scrollId = null;
 
     /**
+     * Track total hits
+     * @var bool|int|null
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/7.17/search-your-data.html#track-total-hits
+     */
+    protected $trackTotalHits = null;
+
+    /**
      * Filter operators
      *
      * @var array
@@ -350,6 +357,29 @@ trait BuildsFluentQueries
         $this->scrollId = $scroll;
 
         return $this;
+    }
+
+    /**
+     * Sets the track_total_hits
+     *
+     * @param bool|int|null $trackTotalHits
+     *
+     * @return $this
+     */
+    public function trackTotalHits(bool|int|null $trackTotalHits): self
+    {
+        $this->trackTotalHits = $trackTotalHits;
+
+        return $this;
+    }
+
+    /**
+     * Retrieves the value of track_total_hits param.
+     * @return bool|int|null
+     */
+    public function getTrackTotalHits(): bool|int|null
+    {
+        return $this->trackTotalHits;
     }
 
     /**
